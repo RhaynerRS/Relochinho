@@ -5,8 +5,10 @@ grid-gap:50px;
 margin-left:auto;
 margin-right:auto;
 max-width: 500px;
-padding: 16px;
 display:flex;
-align-items:center;justify-content:center;
+align-items:center;justify-content:center;place-items:center;
+@media (max-width:570px){
+    max-width: 200px;grid-gap:20px;
+}
 `
 export default MainGrid;

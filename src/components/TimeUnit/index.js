@@ -1,13 +1,16 @@
 import styled from 'styled-components';
 const TimeUnit=styled.h1`
-    border:none;border-bottom:solid 2px;
+    border:none;
     font-family: sans-serif;
+    margin-block:0;
     background-position: center center;
-    min-width: 140px;
+    min-width: 280px;
     width: 100%;
-    height: 100%;
     position: relative;
     text-align: center;
-    font-size:100px;
+    font-size:200px;
+    @media (max-width:570px){
+    min-width: 80px;font-size:80px;
+}
 `
 export default TimeUnit;
