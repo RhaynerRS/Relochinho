@@ -8,16 +8,11 @@ import Body from '../src/components/Body'
 //variaveis mutaveis
 let status = 'study'
 let itsPaused = false
-let pauseLabel = 'pause'
 
-//pause
-if (itsPaused) {
-  pauseLabel = 'play'
-} else {
-  pauseLabel = 'pause'
-}
+
 
 export default function Home() {
+  const [pauseLabel,setPauseLabel]= useState('pause')
   //variaveis inicio
 
   //tempo volatil
@@ -34,7 +29,10 @@ export default function Home() {
     const timer = setInterval(() => {
       if (!itsPaused && status == 'study') {
         setTotalSegundos(totalSegundos => totalSegundos + 1);
+        
       }
+      if (itsPaused){setPauseLabel('play')}
+      else if (!itsPaused){setPauseLabel('pause')}
     }, 1000);
     return () => {
       clearInterval(timer)
@@ -43,10 +41,7 @@ export default function Home() {
   //contador de segundos totais fim
 
   //minutos totais
-  if (totalSegundos >= 60 && status == 'study') {setTotalMinutos(totalMinutos => totalMinutos + 1);setTotalSegundos(0)}
-
-  //horas totais
-
+  if (totalSegundos >= 60 && status == 'study') { setTotalMinutos(totalMinutos => totalMinutos + 1); setTotalSegundos(0) }
 
   //contador de segundos inicio
   useEffect(() => {
@@ -64,14 +59,13 @@ export default function Home() {
     }
   }, [])
   //contador de segundos fim
-
+  var a;
+  var b=(a=3) ? true : false
   //controlador dos minutos inicio
-
   //count up
   if (segundos >= 60 && status == 'study') { setMinutos(minutos => minutos + 1); setSegundos(0) }
   //count down
   else if (segundos == 0 && status == 'break') { setMinutos(minutos => minutos - 1); setSegundos(59) }
-
   //controlador dos minutos fim
 
   //horario de estudo
@@ -92,14 +86,14 @@ export default function Home() {
   if (segundos < 10) { segundosTela = "0" + segundos }
 
   return (<>
-    <Body>
+    <Body status={status}>
       <MainGrid>
         <TimeUnit>{minutosTela}:{segundosTela}</TimeUnit>
 
       </MainGrid>
       <h3 style={{ textAlign: 'center' }}>total study time: {totalMinutosTela} : {totalSegundosTela}</h3>
       <MainGrid>
-        <ButtonPomodoro onClick={
+        <ButtonPomodoro status={status} onClick={
           () => {
             setMinutos(0);
             setSegundos(0);
@@ -108,19 +102,15 @@ export default function Home() {
           }
         }>reset</ButtonPomodoro>
 
-        <ButtonPomodoro onClick={
+        <ButtonPomodoro status={status} onClick={
           () => {
-            if (!itsPaused) {
-              itsPaused = true;
-            }
-            else {
-              itsPaused = false;
-            }
+            if (!itsPaused) { itsPaused = true; }
+            else { itsPaused = false; }
           }
         }>{pauseLabel}</ButtonPomodoro>
       </MainGrid>
 
-      <h1 style={{ textAlign: 'center' }}>its time to {status}</h1>
+      <h1 style={{ textAlign: 'center' }}>it's {status} time</h1>
     </Body>
   </>)
 }

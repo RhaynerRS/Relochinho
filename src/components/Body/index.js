@@ -8,8 +8,8 @@ const Body=styled.body`
     justify-content: center;
     align-items: center;
     font-family: sans-serif;
-    color: white;
-    background-color:black;
+    transition: 0.3s;
+    ${({status})=>status==='study' && 'background-color:black;color: white;' || status==='break' && 'background-color:white;color: black;'}
 `
 
 export default Body;
