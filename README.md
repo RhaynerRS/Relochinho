@@ -2,6 +2,9 @@
 
 Um relógio pomodoro feito utilizando o framework ReactJS, com o objetivo de treinar e por em prática os aprendizados adquiridos durante a Imersão React 3 da Alura
 
+[Veja aqui o resultado final](https://relochinho.vercel.app)
+
+
 ### Objetivos
 * Criar um relogio pomodoro para ajudar estudantes que assim como eu tem dificuldades de estudar por um longo tempo consecutivo
 * Exercitar os conhecimentos adquiridos
@@ -18,7 +21,6 @@ Um relógio pomodoro feito utilizando o framework ReactJS, com o objetivo de tre
 * Utilizar sons para alertar ao estudante sobre o tempo de estudo e de pausa
 
 Uma coisa bem útil que aprendi durante esse mini projeto foi a utilização de variáveis dentro dos componentes o que me permitiu criar essa transiçãozinha bem legal de um modo para outro
-[Imgur](https://i.imgur.com/W4rWuIE.gifv)
+![alt text](https://i.imgur.com/W4rWuIE.gif)
 
 
-[Veja aqui o resultado final](https://relochinho.vercel.app)
