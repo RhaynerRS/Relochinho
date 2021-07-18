@@ -3,7 +3,7 @@
 Um relógio pomodoro feito utilizando o framework ReactJS, com o objetivo de treinar e por em prática os aprendizados adquiridos durante a Imersão React 3 da Alura
 
 [Veja aqui o resultado final](https://relochinho.vercel.app)
-a
+
 
 ### Objetivos
 * Criar um relogio pomodoro para ajudar estudantes que assim como eu tem dificuldades de estudar por um longo tempo consecutivo
