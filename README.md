@@ -12,7 +12,7 @@ Um relogio pomodoro feito utilizando o framework ReactJS, com o objetivo de trei
 * Utilização de useState e useEffect para a atualizar o timer em tempo real
 * Utilização do Next.JS para facilitar os testes e o deploy na Vercel
 
-###Futuras intenções
+### Futuras intenções
 * Criar um sistema de login para que o tempo total de estudo seja permanente
 * Utilizar o DatoCMS para armazenar os dados nescessarios
 * Utilizar sons para alertar ao estudante sobre o tempo de estudo e de pausa
