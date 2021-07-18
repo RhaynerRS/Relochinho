@@ -20,6 +20,8 @@ Um relógio pomodoro feito utilizando o framework ReactJS, com o objetivo de tre
 * Utilizar o DatoCMS para armazenar os dados necessários
 * Utilizar sons para alertar ao estudante sobre o tempo de estudo e de pausa
 
+___
+
 Uma coisa bem útil que aprendi durante esse mini projeto foi a utilização de variáveis dentro dos componentes o que me permitiu criar essa transiçãozinha bem legal de um modo para outro
 ![alt text](https://i.imgur.com/W4rWuIE.gif)
 
