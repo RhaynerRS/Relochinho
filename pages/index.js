@@ -91,11 +91,11 @@ export default function Home() {
   if (totalSegundos < 10) { totalSegundosTela = '0' + totalSegundos }
   if (minutos < 10) { minutosTela = "0" + minutos }
   if (segundos < 10) { segundosTela = "0" + segundos }
-
+//<ProfileArea src={'https://github.com/RhaynerRS.png'} />
   return (  
   <>
     <Body status={status}>
-      <ProfileArea src={'https://github.com/RhaynerRS.png'} />
+      
       <MainGrid>
         <TimeUnit>{minutosTela}:{segundosTela}</TimeUnit>
 
