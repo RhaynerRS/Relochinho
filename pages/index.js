@@ -4,6 +4,10 @@ import MainGrid from '../src/components/MainGrid'
 import TimeUnit from '../src/components/TimeUnit'
 import ButtonPomodoro from '../src/components/ButtonPomodoro'
 import Body from '../src/components/Body'
+import ProfileArea from '../src/components/ProfileArea'
+import {Title} from '../src/components/Misc'
+import {SmallTitle} from '../src/components/Misc'
+
 
 //variaveis mutaveis
 let status = 'study'
@@ -12,7 +16,10 @@ let itsPaused = false
 
 
 export default function Home() {
+
+  //pause/play button
   const [pauseLabel,setPauseLabel]= useState('pause')
+
   //variaveis inicio
 
   //tempo volatil
@@ -85,13 +92,15 @@ export default function Home() {
   if (minutos < 10) { minutosTela = "0" + minutos }
   if (segundos < 10) { segundosTela = "0" + segundos }
 
-  return (<>
+  return (  
+  <>
     <Body status={status}>
+      <ProfileArea src={'https://github.com/RhaynerRS.png'} />
       <MainGrid>
         <TimeUnit>{minutosTela}:{segundosTela}</TimeUnit>
 
       </MainGrid>
-      <h3 style={{ textAlign: 'center' }}>total study time: {totalMinutosTela} : {totalSegundosTela}</h3>
+      <SmallTitle>total study time: {totalMinutosTela} : {totalSegundosTela}</SmallTitle>
       <MainGrid>
         <ButtonPomodoro status={status} onClick={
           () => {
@@ -110,7 +119,7 @@ export default function Home() {
         }>{pauseLabel}</ButtonPomodoro>
       </MainGrid>
 
-      <h1 style={{ textAlign: 'center' }}>it's {status} time</h1>
+      <Title>it's {status} time</Title>
     </Body>
   </>)
 }
