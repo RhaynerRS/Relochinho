@@ -9,6 +9,9 @@ import {Title} from '../src/components/Misc'
 import {SmallTitle} from '../src/components/Misc'
 import { useRouter } from "next/router";
 import { parseCookies } from "nookies";
+import {githubProvider} from '../src/config/authMethods'
+import socialMediaAuth from '../src/service/auth';
+import { setCookie } from "nookies";
 
 
 //variaveis mutaveis
@@ -18,7 +21,9 @@ let itsPaused = false
 
 
 export default function Home(props) {
-  const image = props.USER_IMAGE
+  const [image,setImage]=useState(props.USER_IMAGE)
+
+  
   //pause/play button
   const [pauseLabel,setPauseLabel]= useState('pause')
 
@@ -93,11 +98,23 @@ export default function Home(props) {
   if (totalSegundos < 10) { totalSegundosTela = '0' + totalSegundos }
   if (minutos < 10) { minutosTela = "0" + minutos }
   if (segundos < 10) { segundosTela = "0" + segundos }
-//
+
+  //sistema de login com GitHub
+  const handleOnClick= async (provider)=>{
+    const res = await socialMediaAuth(provider)
+    setCookie(null, "USER_IMAGE", res.photoURL, {
+      maxAge: 86400,
+      path: "/",
+    });
+    window.location.reload();
+  }
+
   return (  
   <>
     <Body status={status}>
-      <ProfileArea src={image} />
+      <ProfileArea onClick={()=>{
+        if (image=='https://avatars.githubusercontent.com/u/0?v=4'){
+        handleOnClick(githubProvider)}}} src={image}/>
       <MainGrid>
         <TimeUnit>{minutosTela}:{segundosTela}</TimeUnit>
 
@@ -130,9 +147,8 @@ export async function getServerSideProps(context) {
   const cookies = parseCookies(context);
 
   return {
-    props: {
-      msg: "Olá estou funcionanto by getServerSideProps",
-      USER_IMAGE: cookies.USER_IMAGE || null,
+    props: {  
+      USER_IMAGE: cookies.USER_IMAGE || 'https://avatars.githubusercontent.com/u/0?v=4',
     },
   };
 }
