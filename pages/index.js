@@ -7,6 +7,8 @@ import Body from '../src/components/Body'
 import ProfileArea from '../src/components/ProfileArea'
 import {Title} from '../src/components/Misc'
 import {SmallTitle} from '../src/components/Misc'
+import { useRouter } from "next/router";
+import { parseCookies } from "nookies";
 
 
 //variaveis mutaveis
@@ -15,8 +17,8 @@ let itsPaused = false
 
 
 
-export default function Home() {
-
+export default function Home(props) {
+  const image = props.USER_IMAGE
   //pause/play button
   const [pauseLabel,setPauseLabel]= useState('pause')
 
@@ -91,11 +93,11 @@ export default function Home() {
   if (totalSegundos < 10) { totalSegundosTela = '0' + totalSegundos }
   if (minutos < 10) { minutosTela = "0" + minutos }
   if (segundos < 10) { segundosTela = "0" + segundos }
-//<ProfileArea src={'https://github.com/RhaynerRS.png'} />
+//
   return (  
   <>
     <Body status={status}>
-      
+      <ProfileArea src={image} />
       <MainGrid>
         <TimeUnit>{minutosTela}:{segundosTela}</TimeUnit>
 
@@ -122,4 +124,15 @@ export default function Home() {
       <Title>it's {status} time</Title>
     </Body>
   </>)
+}
+
+export async function getServerSideProps(context) {
+  const cookies = parseCookies(context);
+
+  return {
+    props: {
+      msg: "Olá estou funcionanto by getServerSideProps",
+      USER_IMAGE: cookies.USER_IMAGE || null,
+    },
+  };
 }
