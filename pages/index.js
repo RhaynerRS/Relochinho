@@ -1,18 +1,14 @@
-import React, { useEffect } from 'react'
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react'
 import MainGrid from '../src/components/MainGrid'
 import TimeUnit from '../src/components/TimeUnit'
 import ButtonPomodoro from '../src/components/ButtonPomodoro'
 import Body from '../src/components/Body'
-import ProfileArea from '../src/components/ProfileArea'
-import {Title} from '../src/components/Misc'
-import {SmallTitle} from '../src/components/Misc'
-import { useRouter } from "next/router";
+import { ProfileArea, ProfileLabel, ProfileImage } from '../src/components/ProfileArea'
+import { Title, SmallTitle } from '../src/components/Misc'
 import { parseCookies } from "nookies";
-import {githubProvider} from '../src/config/authMethods'
+import { githubProvider } from '../src/config/authMethods'
 import socialMediaAuth from '../src/service/auth';
 import { setCookie } from "nookies";
-
 
 //variaveis mutaveis
 let status = 'study'
@@ -21,11 +17,12 @@ let itsPaused = false
 
 
 export default function Home(props) {
-  const [image,setImage]=useState(props.USER_IMAGE)
+  //cookies de login
+  const image = props.USER_IMAGE
+  const loginLabel = props.USER_LOGED.split('@')
 
-  
   //pause/play button
-  const [pauseLabel,setPauseLabel]= useState('pause')
+  const [pauseLabel, setPauseLabel] = useState('pause')
 
   //variaveis inicio
 
@@ -43,10 +40,10 @@ export default function Home(props) {
     const timer = setInterval(() => {
       if (!itsPaused && status == 'study') {
         setTotalSegundos(totalSegundos => totalSegundos + 1);
-        
+
       }
-      if (itsPaused){setPauseLabel('play')}
-      else if (!itsPaused){setPauseLabel('pause')}
+      if (itsPaused) { setPauseLabel('play') }
+      else if (!itsPaused) { setPauseLabel('pause') }
     }, 1000);
     return () => {
       clearInterval(timer)
@@ -74,7 +71,7 @@ export default function Home(props) {
   }, [])
   //contador de segundos fim
   var a;
-  var b=(a=3) ? true : false
+  var b = (a = 3) ? true : false
   //controlador dos minutos inicio
   //count up
   if (segundos >= 60 && status == 'study') { setMinutos(minutos => minutos + 1); setSegundos(0) }
@@ -100,55 +97,65 @@ export default function Home(props) {
   if (segundos < 10) { segundosTela = "0" + segundos }
 
   //sistema de login com GitHub
-  const handleOnClick= async (provider)=>{
+  const handleOnClick = async (provider) => {
     const res = await socialMediaAuth(provider)
     setCookie(null, "USER_IMAGE", res.photoURL, {
+      maxAge: 86400,
+      path: "/",
+    });
+    setCookie(null, "USER_LOGED", res.email, {
       maxAge: 86400,
       path: "/",
     });
     window.location.reload();
   }
 
-  return (  
-  <>
-    <Body status={status}>
-      <ProfileArea onClick={()=>{
-        if (image=='https://avatars.githubusercontent.com/u/0?v=4'){
-        handleOnClick(githubProvider)}}} src={image}/>
-      <MainGrid>
-        <TimeUnit>{minutosTela}:{segundosTela}</TimeUnit>
-
-      </MainGrid>
-      <SmallTitle>total study time: {totalMinutosTela} : {totalSegundosTela}</SmallTitle>
-      <MainGrid>
-        <ButtonPomodoro status={status} onClick={
-          () => {
-            setMinutos(0);
-            setSegundos(0);
-            setTotalSegundos(0);
-            setTotalMinutos(0);
+  return (
+    <>
+      <ProfileArea>
+        <ProfileImage onClick={() => {
+          if (image == 'https://avatars.githubusercontent.com/u/0?v=4') {
+            handleOnClick(githubProvider)
           }
-        }>reset</ButtonPomodoro>
+        }} src={image} id={'User'} />
+        <ProfileLabel>{loginLabel[0]}</ProfileLabel>
+      </ProfileArea>
+      <Body status={status}>
 
-        <ButtonPomodoro status={status} onClick={
-          () => {
-            if (!itsPaused) { itsPaused = true; }
-            else { itsPaused = false; }
-          }
-        }>{pauseLabel}</ButtonPomodoro>
-      </MainGrid>
+        <MainGrid>
+          <TimeUnit>{minutosTela}:{segundosTela}</TimeUnit>
 
-      <Title>it's {status} time</Title>
-    </Body>
-  </>)
+        </MainGrid>
+        <SmallTitle>total study time: {totalMinutosTela} : {totalSegundosTela}</SmallTitle>
+        <MainGrid>
+          <ButtonPomodoro status={status} onClick={
+            () => {
+              setMinutos(0);
+              setSegundos(0);
+              setTotalSegundos(0);
+              setTotalMinutos(0);
+            }
+          }>reset</ButtonPomodoro>
+
+          <ButtonPomodoro status={status} onClick={
+            () => {
+              if (!itsPaused) { itsPaused = true; }
+              else { itsPaused = false; }
+            }
+          }>{pauseLabel}</ButtonPomodoro>
+        </MainGrid>
+
+        <Title>it's {status} time</Title>
+      </Body>
+    </>)
 }
 
 export async function getServerSideProps(context) {
   const cookies = parseCookies(context);
-
   return {
-    props: {  
+    props: {
       USER_IMAGE: cookies.USER_IMAGE || 'https://avatars.githubusercontent.com/u/0?v=4',
+      USER_LOGED: cookies.USER_LOGED || 'Login/Register',
     },
   };
 }
