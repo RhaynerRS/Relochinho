@@ -19,6 +19,7 @@ Um relógio pomodoro feito utilizando o framework ReactJS, com o objetivo de tre
 * Criar um sistema de login para que o tempo total de estudo seja permanente ✔️
 * Utilizar o DatoCMS para armazenar os dados necessários
 * Utilizar sons para alertar ao estudante sobre o tempo de estudo e de pausa
+* fazer alguma maenira do usuario setar o tempo desejado
 
 ___
 
