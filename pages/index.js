@@ -9,6 +9,9 @@ import { parseCookies } from "nookies";
 import { githubProvider } from '../src/config/authMethods'
 import socialMediaAuth from '../src/service/auth';
 import { setCookie } from "nookies";
+import isNode from "detect-node"
+import Favicon from "react-favicon"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 //variaveis mutaveis
 let status = 'study'
@@ -18,8 +21,11 @@ let itsPaused = false
 
 export default function Home(props) {
   //cookies de login
-  const image = props.USER_IMAGE
-  const loginLabel = props.USER_LOGED.split('@')
+  const image=()=>{if(props.USER_IMAGE==`https://github.com/undefined.png`){
+    return 'https://avatars.githubusercontent.com/u/0?v=4'
+  }else{return props.USER_IMAGE}}
+
+  const loginLabel = props.USER_LOGED
 
   //pause/play button
   const [pauseLabel, setPauseLabel] = useState('pause')
@@ -42,8 +48,7 @@ export default function Home(props) {
         setTotalSegundos(totalSegundos => totalSegundos + 1);
 
       }
-      if (itsPaused) { setPauseLabel('play') }
-      else if (!itsPaused) { setPauseLabel('pause') }
+      
     }, 1000);
     return () => {
       clearInterval(timer)
@@ -99,29 +104,55 @@ export default function Home(props) {
   //sistema de login com GitHub
   const handleOnClick = async (provider) => {
     const res = await socialMediaAuth(provider)
-    setCookie(null, "USER_IMAGE", res.photoURL, {
-      maxAge: 86400,
-      path: "/",
-    });
-    setCookie(null, "USER_LOGED", res.email, {
+    console.log(res)
+    setCookie(null, "USER",res.login, {
       maxAge: 86400,
       path: "/",
     });
     window.location.reload();
   }
 
+  if(!isNode && props.USER_IMAGE!='https://avatars.githubusercontent.com/u/0?v=4'){
+    window.addEventListener('beforeunload', (event) => {
+      // Cancel the event as stated by the standard.
+      event.preventDefault();
+  
+      //Para customizar o texto, e é necessário para funcionar no Safari e Chrome, IE e Firefox anterior a versão 4
+      event.returnValue = '';
+  });
+  }
+
+  //local save inicio
+  useEffect(() => {
+    if(((totalMinutos*60)+totalSegundos)<localStorage.getItem("timer") && localStorage.getItem("timer")!=null ){
+    setTotalSegundos(localStorage.getItem("timer")%60)
+    setTotalMinutos((localStorage.getItem("timer")-localStorage.getItem("timer")%60)/60)}
+    if (((totalMinutos*60)+totalSegundos)>=localStorage.getItem("timer")){
+    localStorage.setItem("timer",(totalMinutos*60)+totalSegundos)}
+  },[segundos])
+  //local save fim
+
+  //play/pause
+  useEffect(() => {
+    const timer = setInterval(() => {
+    if (itsPaused) { setPauseLabel('play') }
+    else if (!itsPaused) { setPauseLabel('pause') }
+    })
+  })
+  //play/pause
+
+  //html
   return (
-    <>
-      <ProfileArea>
+      <Body status={status}>
+      <Favicon url="https://img.icons8.com/ios/50/000000/clock--v3.png"/>
+      <ProfileArea status={status}>
         <ProfileImage onClick={() => {
-          if (image == 'https://avatars.githubusercontent.com/u/0?v=4') {
+          if (image() == 'https://avatars.githubusercontent.com/u/0?v=4') {
             handleOnClick(githubProvider)
           }
-        }} src={image} id={'User'} />
-        <ProfileLabel>{loginLabel[0]}</ProfileLabel>
+        }} src={image()} id={'User'} />
+        <ProfileLabel>{loginLabel}</ProfileLabel>
       </ProfileArea>
-      <Body status={status}>
-
         <MainGrid>
           <TimeUnit>{minutosTela}:{segundosTela}</TimeUnit>
 
@@ -146,16 +177,15 @@ export default function Home(props) {
         </MainGrid>
 
         <Title>it's {status} time</Title>
-      </Body>
-    </>)
+      </Body>)
 }
 
 export async function getServerSideProps(context) {
   const cookies = parseCookies(context);
   return {
     props: {
-      USER_IMAGE: cookies.USER_IMAGE || 'https://avatars.githubusercontent.com/u/0?v=4',
-      USER_LOGED: cookies.USER_LOGED || 'Login/Register',
+      USER_IMAGE: `https://github.com/${cookies.USER}.png`,
+      USER_LOGED: cookies.USER || 'Login/Register',
     },
   };
 }

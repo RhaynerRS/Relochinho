@@ -6,9 +6,8 @@ const socialMediaAuth=(provider)=>{
     .auth()
     .signInWithPopup(provider)
     .then((res)=>{
-        image=res.user.photoURL
-        console.log(image)
-        return res.user;
+
+        return res.additionalUserInfo.profile
         
     }).catch((err)=>{return err})
 }
