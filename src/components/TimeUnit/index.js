@@ -11,6 +11,8 @@ const TimeUnit=styled.h1`
     font-size:200px;
     @media (max-width:570px){
     min-width: 80px;font-size:80px;
+    
 }
 `
 export default TimeUnit;
+//

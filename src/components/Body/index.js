@@ -10,8 +10,10 @@ const Body=styled.body`
     align-items: center;
     font-family: sans-serif;
     transition: 0.5s;
+    background-color:transparent;
     :focus{outline:none;}
-    ${({status})=>status==='study' && 'background-color:black;color: white;' || status==='break' && 'background-color:white;color: black;'}
+    ${({status})=>status==='study' && 'color: white; background:#0e2431;' || status==='break' && 'color: black; background:#0e2431;'}
+    
 `
 
 export default Body;
