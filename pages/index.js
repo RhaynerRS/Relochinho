@@ -3,10 +3,10 @@ import MainGrid from '../src/components/MainGrid'
 import TimeUnit from '../src/components/TimeUnit'
 import ButtonPomodoro from '../src/components/ButtonPomodoro'
 import Body from '../src/components/Body'
-import { ProfileArea, ProfileLabel, ProfileImage,ProfileModal,ProfileModalImage} from '../src/components/ProfileArea'
+import { ProfileArea, ProfileLabel, ProfileImage, ProfileModal, ProfileModalImage } from '../src/components/ProfileArea'
 import { Title, SmallTitle } from '../src/components/Misc'
 import { destroyCookie, parseCookies } from "nookies";
-import { githubProvider } from '../src/config/authMethods'
+import { googleProvider } from '../src/config/authMethods'
 import socialMediaAuth from '../src/service/auth';
 import { setCookie } from "nookies";
 import isNode from "detect-node"
@@ -17,14 +17,17 @@ import LoadingBar from 'react-top-loading-bar'
 //variaveis mutaveis
 let status = 'study'
 let itsPaused = false
-let showModal=false
-
+let showModal = false
+let showBar = true
+let bodyColor;
+let barColor;
 export default function Home(props) {
+
   //variaveis inicio
 
   //cookies de login
   const image = () => {
-    if (props.USER_IMAGE == `https://github.com/undefined.png`) {
+    if (props.USER_IMAGE == 'undefined') {
       return 'https://avatars.githubusercontent.com/u/0?v=4'
     } else { return props.USER_IMAGE }
   }
@@ -47,7 +50,7 @@ export default function Home(props) {
   //variaveis fim
 
   //Barra de progresso do timer
-  const [progresso,setProgresso] = useState(0)
+  const [progresso, setProgresso] = useState(0)
 
   //contador de segundos totais inicio
   useEffect(() => {
@@ -73,10 +76,10 @@ export default function Home(props) {
       if (!itsPaused) {
         if (status == 'study') {
           setSegundos(segundos => segundos + 1);
-          setProgresso(progresso => progresso + (100/(25*60)))
+          setProgresso(progresso => progresso + (100 / (25 * 60)))
         } else {
           setSegundos(segundos => (segundos - 1));
-          setProgresso(progresso => progresso + (100/(5*60)))
+          setProgresso(progresso => progresso + (100 / (5 * 60)))
         }
       }
     }, 1000);
@@ -95,10 +98,10 @@ export default function Home(props) {
   //controlador dos minutos fim
 
   //horario de estudo
-  if (minutos == 25 && status == 'study') { status = 'break'; setSegundos(59); setMinutos(4); }
+  if (minutos == 25 && status == 'study') { status = 'break'; setProgresso(0); setSegundos(59); setMinutos(4); }
 
   //horario de pausa
-  else if (minutos == 0 && status == 'break') { status = 'study'; setSegundos(0); setMinutos(0) }
+  else if (minutos == 0 && status == 'break') { status = 'study'; setProgresso(0); setSegundos(0); setMinutos(0) }
 
   //padronizar os numeros
   let segundosTela = segundos
@@ -114,8 +117,11 @@ export default function Home(props) {
   //sistema de login com GitHub
   const handleOnClick = async (provider) => {
     const res = await socialMediaAuth(provider)
-    console.log(res)
-    setCookie(null, "USER", res.login, {
+    setCookie(null, "USER", res.name, {
+      maxAge: 86400,
+      path: "/",
+    });
+    setCookie(null, "USER_IMAGE", res.picture, {
       maxAge: 86400,
       path: "/",
     });
@@ -126,7 +132,14 @@ export default function Home(props) {
     window.addEventListener('beforeunload', (event) => {
       // Cancel the event as stated by the standard.
       event.preventDefault();
-
+      setCookie(null, "BAR_COLOR",barColor, {
+        maxAge: 86400,
+        path: "/",
+      });
+      setCookie(null, "BODY_COLOR",bodyColor, {
+        maxAge: 86400,
+        path: "/",
+      });
       //Para customizar o texto, e é necessário para funcionar no Safari e Chrome, IE e Firefox anterior a versão 4
       event.returnValue = '';
     });
@@ -153,64 +166,94 @@ export default function Home(props) {
   })
   //play/pause
 
+  function Themes() {
+    if (typeof window !== 'undefined') {
+      var theme = document.getElementById("myList").value
+      switch (theme) {
+        case '1': barColor = '#bcc9d2'; bodyColor = '#0e2431';break;
+        case '2': barColor = '#9ba276'; bodyColor = '#2f3543'; break;
+        case '3': barColor = '#f3b61f'; bodyColor = '#90bede'; break;
+        case '4': barColor = '#f06469'; bodyColor = '#ffd07b'; break;
+        default:barColor = props.BAR_COLOR;bodyColor = props.BODY_COLOR;break;
+      }
+    }
+  }
+
+  function LoadThemes(){
+    if (typeof window !== 'undefined') {
+      var theme = document.getElementById("myList").selectedIndex=props.THEME
+    }
+  }
+  
   //html
   return (
     <>
-    <Body status={status}>
-    
-    <LoadingBar shadow={false} onLoaderFinished={() => setProgresso(0)} color='#bcc9d2' height="100vh" progress={progresso}/>
-      <Favicon url={"../src/images/undraw_time_management_30iu.png"} />
-      <ProfileArea status={status} style={{zIndex:'2147483647'}}>
-        <ProfileImage onClick={() => {
-          if (image() == 'https://avatars.githubusercontent.com/u/0?v=4') {
-            handleOnClick(githubProvider)
-          }else{showModal= true}
-        }} src={image()} id={'User'} />
-        <ProfileLabel>{loginLabel}</ProfileLabel>
-      </ProfileArea>
-     
-      <MainGrid style={{zIndex:'2147483647'}}>
-        <TimeUnit>{minutosTela}:{segundosTela}</TimeUnit>
+      <Body color={bodyColor}>
 
-      </MainGrid>
-      <SmallTitle style={{zIndex:'2147483647'}}>total study time: {totalMinutosTela} : {totalSegundosTela}</SmallTitle>
-      <MainGrid style={{zIndex:'2147483647'}}>
-        <ButtonPomodoro status={status} onClick={
-          () => {
-            setMinutos(0);
-            setSegundos(0);
-            setTotalSegundos(0);
-            setTotalMinutos(0);
-          }
-        }>reset</ButtonPomodoro>
+        <LoadingBar shadow={false} color={barColor} height="100vh" progress={progresso} id="bar" />
+        <Favicon url={"../src/images/undraw_time_management_30iu.png"} />
+        <ProfileArea status={status} style={{ zIndex: '2147483647' }}>
+          <ProfileImage onClick={() => {
+            if (image() == 'https://avatars.githubusercontent.com/u/0?v=4') {
+              handleOnClick(googleProvider)
+            } else { showModal = true }
+          }} src={image()} id={'User'} />
+          <ProfileLabel>{loginLabel}</ProfileLabel>
+        </ProfileArea>
 
-        <ButtonPomodoro status={status} onClick={
-          () => {
-            if (!itsPaused) { itsPaused = true; }
-            else { itsPaused = false; }
-          }
-        }>{pauseLabel}</ButtonPomodoro>
-      </MainGrid>
-      <Title style={{zIndex:'2147483647'}}>it's {status} time</Title>
-      <ProfileModal ProfileModal style={{zIndex:'2147483647'}} style={{ display: showModal ? 'flex' : 'none' }}>
-      <ProfileModalImage src={image()} id={'User'} />
-      <Title style={{zIndex:'2147483647',margin:'0'}}>{loginLabel}</Title><br/>
-      <SmallTitle style={{zIndex:'2147483647',margin:'0'}}>total study time: {totalMinutosTela} : {totalSegundosTela}</SmallTitle>
-      <SmallTitle style={{zIndex:'2147483647',margin:'0'}}>theme: </SmallTitle>
-      <SmallTitle onClick={()=>{destroyCookie(null,'USER');window.location.reload();}} style={{zIndex:'2147483647',padding:'20px 10px',border:'1px solid',borderRadius:'10px',cursor:'pointer'}}>SAIR</SmallTitle>
-      </ProfileModal>
-    </Body>
-    
+        <MainGrid style={{ zIndex: '2147483647' }}>
+          <TimeUnit>{minutosTela}:{segundosTela}</TimeUnit>
+
+        </MainGrid>
+        <MainGrid style={{ zIndex: '2147483647' }}>
+          <ButtonPomodoro status={status} onClick={
+            () => {
+              setMinutos(0);
+              setSegundos(0);
+              setTotalSegundos(0);
+              setTotalMinutos(0);
+            }
+          }>reset</ButtonPomodoro>
+
+          <ButtonPomodoro status={status} onClick={
+            () => {
+              if (!itsPaused) { itsPaused = true; }
+              else { itsPaused = false; }
+            }
+          }>{pauseLabel}</ButtonPomodoro>
+        </MainGrid>
+        <Title style={{ zIndex: '2147483647' }}>it's {status} time</Title>
+        <div onClick={() => { showModal = false }} style={{ background: 'rgba(0, 0, 0, 0.4)', width: '100%', height: '100%', position: 'absolute', zIndex: '2147483647', display: showModal ? 'flex' : 'none' }}></div>
+        <ProfileModal ProfileModal style={{ zIndex: '2147483647' }} style={{ display: showModal ? 'flex' : 'none' }}>
+          <ProfileModalImage src={image()} id={'User'} />
+          <Title style={{ zIndex: '2147483647', margin: '0', marginBottom: '1.5em' }}>{loginLabel}</Title>
+          <br />
+          <SmallTitle style={{ zIndex: '2147483647', margin: '0', marginBottom: '0.8em' }}>total study time: {totalMinutosTela} : {totalSegundosTela}</SmallTitle>
+          <div style={{ display: 'flex', maxHeight: '25px', justifyContent: 'center', marginBottom: '1em' }}>
+            <SmallTitle style={{ zIndex: '2147483647', margin: '0', marginBottom: '2em' }}>theme: </SmallTitle>
+            <select style={{ borderRadius: '10px', border: '2px solid black', padding: '2px' }} id="myList" onChange={Themes()} >
+              <option value="0" selected>Themes</option>
+              <option value="1">Foggy Woods</option>
+              <option value="2">leafy greens</option>
+              <option value="3">Sunny Day</option>
+              <option value="4">Spring</option>
+            </select>
+          </div>
+          <SmallTitle onClick={() => { destroyCookie(null, 'USER');destroyCookie(null, 'USER_IMAGE'); window.location.reload(); }} style={{ margin: '0', zIndex: '2147483647', padding: '20px 10px', border: '1px solid', borderRadius: '10px', cursor: 'pointer' }}>SAIR</SmallTitle>
+        </ProfileModal>
+      </Body>
     </>
-    )
+  )
 }
 
 export async function getServerSideProps(context) {
   const cookies = parseCookies(context);
   return {
     props: {
-      USER_IMAGE: `https://github.com/${cookies.USER}.png`,
+      USER_IMAGE: cookies.USER_IMAGE || 'https://avatars.githubusercontent.com/u/0?v=4',
       USER_LOGED: cookies.USER || 'Login/Register',
+      BODY_COLOR:cookies.BODY_COLOR || '#bcc9d2',
+      BAR_COLOR:cookies.BAR_COLOR ||'#0e2431',
     },
   };
 }

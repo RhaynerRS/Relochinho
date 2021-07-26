@@ -12,8 +12,11 @@ const Body=styled.body`
     transition: 0.5s;
     background-color:transparent;
     :focus{outline:none;}
-    ${({status})=>status==='study' && 'color: white; background:#0e2431;' || status==='break' && 'color: black; background:#0e2431;'}
+    outline:none;
+    color: white;
+    background-color:${props => props.color};
+   
     
 `
-
+/* ${({status})=>status==='study' && 'color: white; background:#0e2431;' || status==='break' && 'color: white; background:#0e2431;'}*/
 export default Body;

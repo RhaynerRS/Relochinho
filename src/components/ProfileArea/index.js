@@ -2,7 +2,7 @@ import styled from 'styled-components';
 const ProfileArea=styled.div`
     position:fixed;top:1em;left:1em;
     display:flex;align-items: center;
-    ${({status})=>status==='study' && 'color: white;' || status==='break' && 'color: black;'}
+    ${({status})=>status==='study' && 'color: white;' || status==='break' && 'color: white;'}
 `
 const ProfileImage=styled.img`
     border-radius: 50%;

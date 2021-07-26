@@ -5,7 +5,7 @@ const ButtonPomodoro=styled.button`
     background-color: transparent;min-width:118px;
 
     ${({status})=>status==='study' && 'border:2px solid white;color: white;:hover{background-color: white;color:black;}' ||
-    status==='break' && 'border:2px solid black;color: black;:hover{background-color: black;color:white;}'}
+    status==='break' && 'border:2px solid white;color: white;:hover{background-color: white;color:black;}'}
     
     @media (max-width:570px){
         padding:9px 18px;
