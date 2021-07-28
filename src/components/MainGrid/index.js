@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-const MainGrid=styled.main`
+const MainGrid = styled.main`
 width:100%;
 grid-gap:50px;
 margin-left:auto;

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-const Body=styled.body`
+const Body = styled.body`
 
     width: 100vw;
     height: 100vh;
@@ -18,5 +18,5 @@ const Body=styled.body`
    
     
 `
-/* ${({status})=>status==='study' && 'color: white; background:#0e2431;' || status==='break' && 'color: white; background:#0e2431;'}*/
+
 export default Body;

@@ -1,13 +1,13 @@
 const { SiteClient } = require('datocms-client')
 
 
-export default async function recebedorDeRequests(request,response){
-    if (request.method==='POST'){
-        const TOKEN ='ecb80bbec9a2e648d135577b0562b3'
+export default async function recebedorDeRequests(request, response) {
+    if (request.method === 'POST') {
+        const TOKEN = 'ecb80bbec9a2e648d135577b0562b3'
 
         const client = new SiteClient(TOKEN)
 
-        const record=await client.items.create({ 
+        const record = await client.items.create({
             itemType: '1010860',
             ...request.body,
             /*title: dadosDoForm.get('title'),
@@ -16,8 +16,8 @@ export default async function recebedorDeRequests(request,response){
         })
 
         response.json({
-            dados:"algum dado qualquer",
-            record:record
+            dados: "algum dado qualquer",
+            record: record,
         })
     }
 }

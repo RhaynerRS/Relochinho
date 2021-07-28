@@ -1,10 +1,10 @@
 import styled from 'styled-components';
-const ProfileArea=styled.div`
+const ProfileArea = styled.div`
     position:fixed;top:1em;left:1em;
     display:flex;align-items: center;
-    ${({status})=>status==='study' && 'color: white;' || status==='break' && 'color: white;'}
+    ${({ status }) => status === 'study' && 'color: white;' || status === 'break' && 'color: white;'}
 `
-const ProfileImage=styled.img`
+const ProfileImage = styled.img`
     border-radius: 50%;
     max-width: 50px;
     width:50px;height:50px;
@@ -14,7 +14,7 @@ const ProfileImage=styled.img`
     
     }
 `
-const ProfileLabel=styled.label`
+const ProfileLabel = styled.label`
     font-family:sans-serif;
     font-size:20px;
     margin-left:1em;
@@ -24,7 +24,7 @@ const ProfileLabel=styled.label`
    
 
 `
-const ProfileModal=styled.div`
+const ProfileModal = styled.div`
     position:absolute;
     border-radius:10px;
     width:30%;
@@ -43,7 +43,7 @@ const ProfileModal=styled.div`
     
     }
 `
-const ProfileModalImage=styled.img`
+const ProfileModalImage = styled.img`
     border-radius: 50%;
     max-width: 150px;
     width:150px;height:150px;
@@ -58,8 +58,8 @@ const ProfileModalImage=styled.img`
     top:-35px;border:6px solid white;
     }
 `
-export {ProfileModalImage};
-export {ProfileModal};
-export {ProfileLabel};
-export {ProfileImage};
-export {ProfileArea};
+export { ProfileModalImage };
+export { ProfileModal };
+export { ProfileLabel };
+export { ProfileImage };
+export { ProfileArea };

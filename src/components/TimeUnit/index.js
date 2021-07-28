@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-const TimeUnit=styled.h1`
+const TimeUnit = styled.h1`
     border:none;
     font-family: sans-serif;
     margin-block:0;

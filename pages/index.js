@@ -1,3 +1,4 @@
+//imports inicio
 import React, { useEffect, useState } from 'react'
 import MainGrid from '../src/components/MainGrid'
 import TimeUnit from '../src/components/TimeUnit'
@@ -11,27 +12,30 @@ import socialMediaAuth from '../src/service/auth';
 import { setCookie } from "nookies";
 import isNode from "detect-node"
 import Favicon from "react-favicon"
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import LoadingBar from 'react-top-loading-bar'
+//imports fim
 
-//variaveis mutaveis
+//variaveis mutaveis inicio
 let status = 'study'
 let itsPaused = false
 let showModal = false
 let bodyColor;
 let barColor;
+//variaveis mutaveis fim
+
 export default function Home(props) {
 
   //variaveis inicio
 
-  //cookies de login
+  //imagem usuario
   const image = () => {
     if (props.USER_IMAGE == 'undefined') {
       return 'https://avatars.githubusercontent.com/u/0?v=4'
     } else { return props.USER_IMAGE }
   }
 
-  const loginLabel = props.USER_LOGED
+  //nome usuario
+  const loginLabel = props.USER_LOGED.split(',')[0]
 
   //pause/play button
   const [pauseLabel, setPauseLabel] = useState('pause')
@@ -66,7 +70,7 @@ export default function Home(props) {
   }, [])
   //contador de segundos totais fim
 
-  //minutos totais
+  //tempo total
   if (totalSegundos >= 60 && status == 'study') { setTotalMinutos(totalMinutos => totalMinutos + 1); setTotalSegundos(0) }
 
   //contador de segundos inicio
@@ -87,19 +91,25 @@ export default function Home(props) {
     }
   }, [])
   //contador de segundos fim
-  var a;
-  var b = (a = 3) ? true : false
+
   //controlador dos minutos inicio
+
   //count up
+
   if (segundos >= 60 && status == 'study') { setMinutos(minutos => minutos + 1); setSegundos(0) }
+
   //count down
+
   else if (segundos == 0 && status == 'break') { setMinutos(minutos => minutos - 1); setSegundos(59) }
+
   //controlador dos minutos fim
 
   //horario de estudo
+
   if (minutos == 25 && status == 'study') { status = 'break'; setProgresso(0); setSegundos(59); setMinutos(4); }
 
   //horario de pausa
+
   else if (minutos == 0 && status == 'break') { status = 'study'; setProgresso(0); setSegundos(0); setMinutos(0) }
 
   //padronizar os numeros
@@ -114,6 +124,7 @@ export default function Home(props) {
   if (segundos < 10) { segundosTela = "0" + segundos }
 
   //local save inicio
+
   useEffect(() => {
     if (((totalMinutos * 60) + totalSegundos) < localStorage.getItem("timer") && localStorage.getItem("timer") != null) {
       setTotalSegundos(localStorage.getItem("timer") % 60)
@@ -123,12 +134,15 @@ export default function Home(props) {
       localStorage.setItem("timer", (totalMinutos * 60) + totalSegundos)
     }
   }, [segundos])
+
   //local save fim
 
   //sistema de login com Google
+
   const handleOnClick = async (provider) => {
     const res = await socialMediaAuth(provider)
 
+    //cadastra usuario no datoCMS
     const user = {
       username: res.name,
       useremail: res.email,
@@ -145,7 +159,7 @@ export default function Home(props) {
       body: JSON.stringify(user)
     })
 
-    const savedTimer = await fetch('https://graphql.datocms.com/', {
+    const data = await fetch('https://graphql.datocms.com/', {
       method: 'POST',
       headers: {
         'Authorization': '287d4521ff52303203a3293cfef557',
@@ -155,6 +169,7 @@ export default function Home(props) {
       body: JSON.stringify({
         "query": `query {
         user(filter:{useremail:{eq:${JSON.stringify(res.email)}}}){
+          id
           username
           usertimer
           useremail
@@ -163,14 +178,16 @@ export default function Home(props) {
     })
       .then((response) => response.json()) // Pega o retorno do response.json() e já retorna
       .then((respostaCompleta) => {
-        return respostaCompleta.data.user.usertimer
+        return respostaCompleta.data.user
       })
 
-    if (localStorage.getItem("timer") != null && savedTimer != null) {
-      localStorage.setItem("timer", savedTimer)
+    //seta o tempo total para o armazenado no datoCMS
+    if (localStorage.getItem("timer") != null && data.usertimer != null) {
+      localStorage.setItem("timer", data.usertimer)
     }
 
-    setCookie(null, "USER", res.name, {
+    //cria os cookies de usuario
+    setCookie(null, "USER", [res.name, data.id], {
       maxAge: 86400,
       path: "/",
     });
@@ -178,13 +195,30 @@ export default function Home(props) {
       maxAge: 86400,
       path: "/",
     });
+
+    //recarrega a pagina apos o login
     window.location.reload();
   }
 
+  //se o usuario estiver logado ele questiona o reload
   if (!isNode && props.USER_IMAGE != 'https://avatars.githubusercontent.com/u/0?v=4') {
     window.addEventListener('beforeunload', (event) => {
-      // Cancel the event as stated by the standard.
+
+      // Cancela o reload automatico
       event.preventDefault();
+
+      //salva o tempo total no datoCMS
+      const tempoAtualizado = { id: props.USER_LOGED.split(',')[1], usertimer: ((totalMinutos * 60) + totalSegundos) }
+      fetch('/api/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(tempoAtualizado),
+
+      })
+
+      //cria os cookies da cor do site
       setCookie(null, "BAR_COLOR", barColor, {
         maxAge: 86400,
         path: "/",
@@ -193,23 +227,24 @@ export default function Home(props) {
         maxAge: 86400,
         path: "/",
       });
+
       //Para customizar o texto, e é necessário para funcionar no Safari e Chrome, IE e Firefox anterior a versão 4
       event.returnValue = '';
     });
   }
 
-
-
-
   //play/pause
+  
   useEffect(() => {
     const timer = setInterval(() => {
       if (itsPaused) { setPauseLabel('play') }
       else if (!itsPaused) { setPauseLabel('pause') }
     })
   })
+
   //play/pause
 
+  //cores do site com o default sendo os valores armazenados nos cookies
   function Themes() {
     if (typeof window !== 'undefined') {
       var theme = document.getElementById("myList").value
@@ -220,12 +255,6 @@ export default function Home(props) {
         case '4': barColor = '#f06469'; bodyColor = '#ffd07b'; break;
         default: barColor = props.BAR_COLOR; bodyColor = props.BODY_COLOR; break;
       }
-    }
-  }
-
-  function LoadThemes() {
-    if (typeof window !== 'undefined') {
-      var theme = document.getElementById("myList").selectedIndex = props.THEME
     }
   }
 
@@ -283,13 +312,14 @@ export default function Home(props) {
               <option value="4">Spring</option>
             </select>
           </div>
-          <SmallTitle onClick={() => { destroyCookie(null, 'USER'); destroyCookie(null, 'USER_IMAGE'); window.location.reload(); }} style={{ margin: '0', zIndex: '2147483647', padding: '20px 10px', border: '1px solid', borderRadius: '10px', cursor: 'pointer' }}>SAIR</SmallTitle>
+          <SmallTitle onClick={() => { destroyCookie(null, 'USER'); destroyCookie(null, 'USER_IMAGE'); localStorage.setItem('timer', 0); window.location.reload(); }} style={{ margin: '0', zIndex: '2147483647', padding: '20px 10px', border: '1px solid', borderRadius: '10px', cursor: 'pointer' }}>SAIR</SmallTitle>
         </ProfileModal>
       </Body>
     </>
   )
 }
 
+//lidando com os cookies
 export async function getServerSideProps(context) {
   const cookies = parseCookies(context);
   return {
