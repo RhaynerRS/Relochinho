@@ -18,7 +18,6 @@ import LoadingBar from 'react-top-loading-bar'
 let status = 'study'
 let itsPaused = false
 let showModal = false
-let showBar = true
 let bodyColor;
 let barColor;
 export default function Home(props) {
@@ -114,9 +113,63 @@ export default function Home(props) {
   if (minutos < 10) { minutosTela = "0" + minutos }
   if (segundos < 10) { segundosTela = "0" + segundos }
 
-  //sistema de login com GitHub
+  //local save inicio
+  useEffect(() => {
+    if (((totalMinutos * 60) + totalSegundos) < localStorage.getItem("timer") && localStorage.getItem("timer") != null) {
+      setTotalSegundos(localStorage.getItem("timer") % 60)
+      setTotalMinutos((localStorage.getItem("timer") - localStorage.getItem("timer") % 60) / 60)
+    }
+    if (((totalMinutos * 60) + totalSegundos) >= localStorage.getItem("timer")) {
+      localStorage.setItem("timer", (totalMinutos * 60) + totalSegundos)
+    }
+  }, [segundos])
+  //local save fim
+
+  //sistema de login com Google
   const handleOnClick = async (provider) => {
     const res = await socialMediaAuth(provider)
+
+    const user = {
+      username: res.name,
+      useremail: res.email,
+      usertimer: ((totalMinutos * 60) + totalSegundos),
+      barcolor: barColor,
+      bodycolor: bodyColor
+    }
+
+    fetch('/api/users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(user)
+    })
+
+    const savedTimer = await fetch('https://graphql.datocms.com/', {
+      method: 'POST',
+      headers: {
+        'Authorization': '287d4521ff52303203a3293cfef557',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        "query": `query {
+        user(filter:{useremail:{eq:${JSON.stringify(res.email)}}}){
+          username
+          usertimer
+          useremail
+        }
+      }` })
+    })
+      .then((response) => response.json()) // Pega o retorno do response.json() e já retorna
+      .then((respostaCompleta) => {
+        return respostaCompleta.data.user.usertimer
+      })
+
+    if (localStorage.getItem("timer") != null && savedTimer != null) {
+      localStorage.setItem("timer", savedTimer)
+    }
+
     setCookie(null, "USER", res.name, {
       maxAge: 86400,
       path: "/",
@@ -132,11 +185,11 @@ export default function Home(props) {
     window.addEventListener('beforeunload', (event) => {
       // Cancel the event as stated by the standard.
       event.preventDefault();
-      setCookie(null, "BAR_COLOR",barColor, {
+      setCookie(null, "BAR_COLOR", barColor, {
         maxAge: 86400,
         path: "/",
       });
-      setCookie(null, "BODY_COLOR",bodyColor, {
+      setCookie(null, "BODY_COLOR", bodyColor, {
         maxAge: 86400,
         path: "/",
       });
@@ -145,17 +198,8 @@ export default function Home(props) {
     });
   }
 
-  //local save inicio
-  useEffect(() => {
-    if (((totalMinutos * 60) + totalSegundos) < localStorage.getItem("timer") && localStorage.getItem("timer") != null) {
-      setTotalSegundos(localStorage.getItem("timer") % 60)
-      setTotalMinutos((localStorage.getItem("timer") - localStorage.getItem("timer") % 60) / 60)
-    }
-    if (((totalMinutos * 60) + totalSegundos) >= localStorage.getItem("timer")) {
-      localStorage.setItem("timer", (totalMinutos * 60) + totalSegundos)
-    }
-  }, [segundos])
-  //local save fim
+
+
 
   //play/pause
   useEffect(() => {
@@ -170,21 +214,21 @@ export default function Home(props) {
     if (typeof window !== 'undefined') {
       var theme = document.getElementById("myList").value
       switch (theme) {
-        case '1': barColor = '#bcc9d2'; bodyColor = '#0e2431';break;
+        case '1': barColor = '#bcc9d2'; bodyColor = '#0e2431'; break;
         case '2': barColor = '#9ba276'; bodyColor = '#2f3543'; break;
         case '3': barColor = '#f3b61f'; bodyColor = '#90bede'; break;
         case '4': barColor = '#f06469'; bodyColor = '#ffd07b'; break;
-        default:barColor = props.BAR_COLOR;bodyColor = props.BODY_COLOR;break;
+        default: barColor = props.BAR_COLOR; bodyColor = props.BODY_COLOR; break;
       }
     }
   }
 
-  function LoadThemes(){
+  function LoadThemes() {
     if (typeof window !== 'undefined') {
-      var theme = document.getElementById("myList").selectedIndex=props.THEME
+      var theme = document.getElementById("myList").selectedIndex = props.THEME
     }
   }
-  
+
   //html
   return (
     <>
@@ -239,7 +283,7 @@ export default function Home(props) {
               <option value="4">Spring</option>
             </select>
           </div>
-          <SmallTitle onClick={() => { destroyCookie(null, 'USER');destroyCookie(null, 'USER_IMAGE'); window.location.reload(); }} style={{ margin: '0', zIndex: '2147483647', padding: '20px 10px', border: '1px solid', borderRadius: '10px', cursor: 'pointer' }}>SAIR</SmallTitle>
+          <SmallTitle onClick={() => { destroyCookie(null, 'USER'); destroyCookie(null, 'USER_IMAGE'); window.location.reload(); }} style={{ margin: '0', zIndex: '2147483647', padding: '20px 10px', border: '1px solid', borderRadius: '10px', cursor: 'pointer' }}>SAIR</SmallTitle>
         </ProfileModal>
       </Body>
     </>
@@ -252,8 +296,8 @@ export async function getServerSideProps(context) {
     props: {
       USER_IMAGE: cookies.USER_IMAGE || 'https://avatars.githubusercontent.com/u/0?v=4',
       USER_LOGED: cookies.USER || 'Login/Register',
-      BODY_COLOR:cookies.BODY_COLOR || '#bcc9d2',
-      BAR_COLOR:cookies.BAR_COLOR ||'#0e2431',
+      BODY_COLOR: cookies.BODY_COLOR || '#0e2431',
+      BAR_COLOR: cookies.BAR_COLOR || '#bcc9d2',
     },
   };
 }

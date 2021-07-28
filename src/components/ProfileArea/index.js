@@ -6,13 +6,15 @@ const ProfileArea=styled.div`
 `
 const ProfileImage=styled.img`
     border-radius: 50%;
-    max-width: 65px;
-    width:65px;height:65px;
+    max-width: 50px;
+    width:50px;height:50px;
+    :hover{cursor:pointer;}
     @media (max-width:570px){
     width:45px;height:45px;
+    
     }
 `
-const ProfileLabel=styled.span`
+const ProfileLabel=styled.label`
     font-family:sans-serif;
     font-size:20px;
     margin-left:1em;

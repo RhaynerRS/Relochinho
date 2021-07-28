@@ -6,7 +6,6 @@ const socialMediaAuth=(provider)=>{
     .auth()
     .signInWithPopup(provider)
     .then((res)=>{
-        console.log(res.additionalUserInfo.profile)
         return res.additionalUserInfo.profile
         
     }).catch((err)=>{return err})
