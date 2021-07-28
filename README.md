@@ -27,6 +27,6 @@ Um relógio pomodoro feito utilizando o framework ReactJS, com o objetivo de tre
 
 ___
 
-![alt text](https://i.imgur.com/843BXJg.gifv)
+![alt text](https://i.imgur.com/843BXJg.gif)
 
 
