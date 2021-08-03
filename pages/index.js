@@ -11,7 +11,6 @@ import { googleProvider } from '../src/config/authMethods'
 import socialMediaAuth from '../src/service/auth';
 import { setCookie } from "nookies";
 import isNode from "detect-node"
-import Favicon from "react-favicon"
 import LoadingBar from 'react-top-loading-bar'
 //imports fim
 
@@ -29,11 +28,10 @@ export default function Home(props) {
 
   //imagem usuario
   const image = () => {
-    if (props.USER_IMAGE == 'undefined') {
+    if (!props.USER_LOGED.split(',')[2]) {
       return 'https://avatars.githubusercontent.com/u/0?v=4'
-    } else { return props.USER_IMAGE }
+    } else { return (props.USER_LOGED.split(',')[2]) }
   }
-
   //nome usuario
   const loginLabel = props.USER_LOGED.split(',')[0]
 
@@ -44,11 +42,9 @@ export default function Home(props) {
 
   //tempo volatil
   const [segundos, setSegundos] = useState(0)
-  const [minutos, setMinutos] = useState(0)
 
   //tempo total
   const [totalSegundos, setTotalSegundos] = useState(0)
-  const [totalMinutos, setTotalMinutos] = useState(0)
 
   //variaveis fim
 
@@ -70,20 +66,12 @@ export default function Home(props) {
   }, [])
   //contador de segundos totais fim
 
-  //tempo total
-  if (totalSegundos >= 60 && status == 'study') { setTotalMinutos(totalMinutos => totalMinutos + 1); setTotalSegundos(0) }
-
   //contador de segundos inicio
   useEffect(() => {
     const timer = setInterval(() => {
       if (!itsPaused) {
-        if (status == 'study') {
-          setSegundos(segundos => segundos + 1);
-          setProgresso(progresso => progresso + (100 / (25 * 60)))
-        } else {
-          setSegundos(segundos => (segundos - 1));
-          setProgresso(progresso => progresso + (100 / (5 * 60)))
-        }
+        {status == 'study'?(setSegundos(segundos => segundos + 1,setProgresso(progresso => progresso + (100 / (25 * 60)))))
+        :(setSegundos(segundos => (segundos - 1)),setProgresso(progresso => progresso + (100 / (5 * 60))))}
       }
     }, 1000);
     return () => {
@@ -92,49 +80,27 @@ export default function Home(props) {
   }, [])
   //contador de segundos fim
 
-  //controlador dos minutos inicio
-
-  //count up
-
-  if (segundos >= 60 && status == 'study') { setMinutos(minutos => minutos + 1); setSegundos(0) }
-
-  //count down
-
-  else if (segundos == 0 && status == 'break') { setMinutos(minutos => minutos - 1); setSegundos(59) }
-
-  //controlador dos minutos fim
-
   //horario de estudo
 
-  if (minutos == 25 && status == 'study') { status = 'break'; setProgresso(0); setSegundos(59); setMinutos(4); }
+  if (segundos == 25 * 60 && status == 'study') { status = 'break'; setProgresso(0); setSegundos(5 * 60);; }
 
   //horario de pausa
 
-  else if (minutos == 0 && status == 'break') { status = 'study'; setProgresso(0); setSegundos(0); setMinutos(0) }
-
-  //padronizar os numeros
-  let segundosTela = segundos
-  let minutosTela = minutos
-  let totalMinutosTela = totalMinutos
-  let totalSegundosTela = totalSegundos
-
-  if (totalMinutos < 10) { totalMinutosTela = '0' + totalMinutos }
-  if (totalSegundos < 10) { totalSegundosTela = '0' + totalSegundos }
-  if (minutos < 10) { minutosTela = "0" + minutos }
-  if (segundos < 10) { segundosTela = "0" + segundos }
+  else if (segundos == 0 && status == 'break') { status = 'study'; setProgresso(0); setSegundos(0); }
 
   //local save inicio
 
   useEffect(() => {
-    if (((totalMinutos * 60) + totalSegundos) < localStorage.getItem("timer") && localStorage.getItem("timer") != null) {
-      setTotalSegundos(localStorage.getItem("timer") % 60)
-      setTotalMinutos((localStorage.getItem("timer") - localStorage.getItem("timer") % 60) / 60)
+
+    if ((totalSegundos) < localStorage.getItem("timer") && localStorage.getItem("timer") != null) {
+      setTotalSegundos(parseInt(localStorage.getItem("timer")))
     }
-    if (((totalMinutos * 60) + totalSegundos) >= localStorage.getItem("timer")) {
-      localStorage.setItem("timer", (totalMinutos * 60) + totalSegundos)
+    if ((totalSegundos) >= localStorage.getItem("timer")) {
+      localStorage.setItem("timer", totalSegundos)
     }
   }, [segundos])
 
+  console.log(totalSegundos)
   //local save fim
 
   //sistema de login com Google
@@ -146,7 +112,7 @@ export default function Home(props) {
     const user = {
       username: res.name,
       useremail: res.email,
-      usertimer: ((totalMinutos * 60) + totalSegundos),
+      usertimer: (totalSegundos),
       barcolor: barColor,
       bodycolor: bodyColor
     }
@@ -187,11 +153,7 @@ export default function Home(props) {
     }
 
     //cria os cookies de usuario
-    setCookie(null, "USER", [res.name, data.id], {
-      maxAge: 86400,
-      path: "/",
-    });
-    setCookie(null, "USER_IMAGE", res.picture, {
+    setCookie(null, "USER", [res.name, data.id, res.picture], {
       maxAge: 86400,
       path: "/",
     });
@@ -201,14 +163,14 @@ export default function Home(props) {
   }
 
   //se o usuario estiver logado ele questiona o reload
-  if (!isNode && props.USER_IMAGE != 'https://avatars.githubusercontent.com/u/0?v=4') {
+  if (!isNode && image() != 'https://avatars.githubusercontent.com/u/0?v=4') {
     window.addEventListener('beforeunload', (event) => {
 
       // Cancela o reload automatico
       event.preventDefault();
 
       //salva o tempo total no datoCMS
-      const tempoAtualizado = { id: props.USER_LOGED.split(',')[1], usertimer: ((totalMinutos * 60) + totalSegundos) }
+      const tempoAtualizado = { id: props.USER_LOGED.split(',')[1], usertimer: totalSegundos }
       fetch('/api/update', {
         method: 'POST',
         headers: {
@@ -233,17 +195,6 @@ export default function Home(props) {
     });
   }
 
-  //play/pause
-  
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (itsPaused) { setPauseLabel('play') }
-      else if (!itsPaused) { setPauseLabel('pause') }
-    })
-  })
-
-  //play/pause
-
   //cores do site com o default sendo os valores armazenados nos cookies
   function Themes() {
     if (typeof window !== 'undefined') {
@@ -264,7 +215,6 @@ export default function Home(props) {
       <Body color={bodyColor}>
 
         <LoadingBar shadow={false} color={barColor} height="100vh" progress={progresso} id="bar" />
-        <Favicon url={"../src/images/undraw_time_management_30iu.png"} />
         <ProfileArea status={status} style={{ zIndex: '2147483647' }}>
           <ProfileImage onClick={() => {
             if (image() == 'https://avatars.githubusercontent.com/u/0?v=4') {
@@ -275,16 +225,14 @@ export default function Home(props) {
         </ProfileArea>
 
         <MainGrid style={{ zIndex: '2147483647' }}>
-          <TimeUnit>{minutosTela}:{segundosTela}</TimeUnit>
+          <TimeUnit>{Math.floor(segundos / 60) >= 10 ? (Math.floor(segundos / 60)) : ('0' + Math.floor(segundos / 60))}:{segundos % 60 >= 10 ? (Math.floor(segundos % 60)) : ('0' + Math.floor(segundos % 60))}</TimeUnit>
 
         </MainGrid>
         <MainGrid style={{ zIndex: '2147483647' }}>
           <ButtonPomodoro status={status} onClick={
             () => {
-              setMinutos(0);
               setSegundos(0);
               setTotalSegundos(0);
-              setTotalMinutos(0);
             }
           }>reset</ButtonPomodoro>
 
@@ -292,6 +240,7 @@ export default function Home(props) {
             () => {
               if (!itsPaused) { itsPaused = true; }
               else { itsPaused = false; }
+              { itsPaused ? (setPauseLabel('play')) : (setPauseLabel('pause')) }
             }
           }>{pauseLabel}</ButtonPomodoro>
         </MainGrid>
@@ -301,9 +250,13 @@ export default function Home(props) {
           <ProfileModalImage src={image()} id={'User'} />
           <Title style={{ zIndex: '2147483647', margin: '0', marginBottom: '1.5em' }}>{loginLabel}</Title>
           <br />
-          <SmallTitle style={{ zIndex: '2147483647', margin: '0', marginBottom: '0.8em' }}>total study time: {totalMinutosTela} : {totalSegundosTela}</SmallTitle>
+          <SmallTitle style={{ zIndex: '2147483647', margin: '0', marginBottom: '0.8em' }}>total study time:
+            {Math.floor(totalSegundos / 60) >= 10 ? (Math.floor(totalSegundos / 60)) : ('0' + Math.floor(totalSegundos / 60))}
+            :
+            {totalSegundos % 60 >= 10 ? (Math.floor(totalSegundos % 60)) : ('0' + Math.floor(totalSegundos % 60))}</SmallTitle>
           <div style={{ display: 'flex', maxHeight: '25px', justifyContent: 'center', marginBottom: '1em' }}>
             <SmallTitle style={{ zIndex: '2147483647', margin: '0', marginBottom: '2em' }}>theme: </SmallTitle>
+
             <select style={{ borderRadius: '10px', border: '2px solid black', padding: '2px' }} id="myList" onChange={Themes()} >
               <option value="0" selected>Themes</option>
               <option value="1">Foggy Woods</option>
@@ -312,7 +265,7 @@ export default function Home(props) {
               <option value="4">Spring</option>
             </select>
           </div>
-          <SmallTitle onClick={() => { destroyCookie(null, 'USER'); destroyCookie(null, 'USER_IMAGE'); localStorage.setItem('timer', 0); window.location.reload(); }} style={{ margin: '0', zIndex: '2147483647', padding: '20px 10px', border: '1px solid', borderRadius: '10px', cursor: 'pointer' }}>SAIR</SmallTitle>
+          <SmallTitle onClick={() => { destroyCookie(null, 'USER'); localStorage.setItem('timer', 0); window.location.reload(); }} style={{ margin: '0', zIndex: '2147483647', padding: '20px 10px', border: '1px solid', borderRadius: '10px', cursor: 'pointer' }}>SAIR</SmallTitle>
         </ProfileModal>
       </Body>
     </>
@@ -324,7 +277,6 @@ export async function getServerSideProps(context) {
   const cookies = parseCookies(context);
   return {
     props: {
-      USER_IMAGE: cookies.USER_IMAGE || 'https://avatars.githubusercontent.com/u/0?v=4',
       USER_LOGED: cookies.USER || 'Login/Register',
       BODY_COLOR: cookies.BODY_COLOR || '#0e2431',
       BAR_COLOR: cookies.BAR_COLOR || '#bcc9d2',
