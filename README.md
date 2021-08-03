@@ -24,7 +24,12 @@ Um relógio pomodoro feito utilizando o framework ReactJS, com o objetivo de tre
 * Utilizar sons para alertar ao estudante sobre o tempo de estudo e de pausa
 * fazer alguma maenira do usuario setar o tempo desejado
 
+
 ___
 
+<<<<<<< HEAD
+=======
+![alt text](https://i.imgur.com/843BXJg.gif)
+>>>>>>> d469f2596cd9f0a8699120a2f75c4308ffd0e475
 
 
