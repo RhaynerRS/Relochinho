@@ -204,6 +204,7 @@ export default function Home(props) {
         case '2': barColor = '#9ba276'; bodyColor = '#2f3543'; break;
         case '3': barColor = '#f3b61f'; bodyColor = '#90bede'; break;
         case '4': barColor = '#f06469'; bodyColor = '#ffd07b'; break;
+        case '5': barColor = '#4fffeb'; bodyColor = '#ff7295'; break;
         default: barColor = props.BAR_COLOR; bodyColor = props.BODY_COLOR; break;
       }
     }
@@ -263,6 +264,7 @@ export default function Home(props) {
               <option value="2">leafy greens</option>
               <option value="3">Sunny Day</option>
               <option value="4">Spring</option>
+              <option value="5">Lover Boy</option>
             </select>
           </div>
           <SmallTitle onClick={() => { destroyCookie(null, 'USER'); localStorage.setItem('timer', 0); window.location.reload(); }} style={{ margin: '0', zIndex: '2147483647', padding: '20px 10px', border: '1px solid', borderRadius: '10px', cursor: 'pointer' }}>SAIR</SmallTitle>
