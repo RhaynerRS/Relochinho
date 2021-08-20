@@ -233,6 +233,7 @@ export default function Home(props) {
           <ButtonPomodoro status={status} onClick={
             () => {
               setSegundos(0);
+              setProgresso(0); 
               setTotalSegundos(0);
             }
           }>reset</ButtonPomodoro>
