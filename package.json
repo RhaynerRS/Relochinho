@@ -14,7 +14,7 @@
     "firebase": "^8.7.1",
     "gl-react": "^5.0.0",
     "gl-react-negative": "^2.0.1",
-    "gl-shader": "^4.2.1",
+    "gl-shader": "^4.3.1",
     "invariant": "^2.2.4",
     "loose-envify": "^1.4.0",
     "ndarray": "^1.0.19",
